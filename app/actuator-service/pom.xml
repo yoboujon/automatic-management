@@ -1,0 +1,40 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <parent>
+        <groupId>insa.application.helpapp</groupId>
+        <artifactId>helpapp</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>actuator-service</artifactId>
+
+    <dependencies>
+        <!-- Dépendance pour créer un service REST -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Plugin Maven pour Spring Boot -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>3.1.4</version>
+            </plugin>
+            
+            <!-- Plugin pour configurer le compilateur -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
