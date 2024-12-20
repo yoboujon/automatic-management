@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
     <parent>
-        <groupId>insa.application.helpapp</groupId>
-        <artifactId>helpapp</artifactId>
+        <groupId>insa.application.app</groupId>
+        <artifactId>app</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>

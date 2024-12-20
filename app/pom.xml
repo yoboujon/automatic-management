@@ -12,6 +12,7 @@
         <module>decision-service</module>
         <module>room-service</module>
         <module>notification-service</module>
+        <module>discovery-service</module>
     </modules>
 
     <dependencyManagement>
