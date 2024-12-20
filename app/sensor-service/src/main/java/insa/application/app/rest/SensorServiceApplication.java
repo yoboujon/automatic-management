@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SensorServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(RestApplication.class, args);
+        SpringApplication.run(SensorServiceApplication.class, args);
     }
 
     @GetMapping("/hello")

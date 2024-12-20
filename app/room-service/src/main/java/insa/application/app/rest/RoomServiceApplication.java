@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class RoomServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(RestApplication.class, args);
+        SpringApplication.run(RoomServiceApplication.class, args);
     }
 
     @GetMapping("/hello")

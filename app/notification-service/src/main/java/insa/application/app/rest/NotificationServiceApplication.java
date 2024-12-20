@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class NotificationServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(RestApplication.class, args);
+        SpringApplication.run(NotificationServiceApplication.class, args);
     }
 
     @GetMapping("/hello")
