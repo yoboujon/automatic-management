@@ -21,14 +21,22 @@ type AccuatorData struct {
 	Name  string `json:"name"`
 	Type  string `json:"type"`
 	Id    int32  `json:"id"`
-	Value bool   `json:"value"`
+	Value int32  `json:"value"`
 }
 
+// Sensors
 var carbonDioxyde float64
 var temperature_intern float64
 var temperature_extern float64
 var sound float64
 var humidity float64
+
+// Accuators
+var heating int32
+var windows bool
+var doors bool
+
+// Thread
 var mutex sync.Mutex
 
 func main() {
@@ -95,6 +103,20 @@ func addSensorData(s []SensorData, value float64, id int32, name, device_type, u
 	})
 }
 
+func addAccuatorData(a []AccuatorData, value int32, name, device_type string) []AccuatorData {
+	id := int32(0)
+	if len(a) != 0 {
+		id = (a[len(a)-1].Id) + 1
+	}
+
+	return append(a, AccuatorData{
+		Name:  name,
+		Type:  device_type,
+		Id:    id,
+		Value: value,
+	})
+}
+
 func handleSensorsRequest(w http.ResponseWriter) {
 	var s []SensorData
 	mutex.Lock()
@@ -113,7 +135,7 @@ func handleSensorsRequest(w http.ResponseWriter) {
 
 type Payload struct {
 	ID    int32 `json:"id"`
-	State bool  `json:"state"`
+	State int32 `json:"state"`
 }
 
 func handleAccuatorsRequest(w http.ResponseWriter, r *http.Request) {
@@ -127,7 +149,17 @@ func handleAccuatorsRequest(w http.ResponseWriter, r *http.Request) {
 
 		fmt.Printf("Received ID: %d, State: %v\n", payload.ID, payload.State)
 	} else if r.Method == http.MethodGet {
-		w.Write([]byte("List of accuators"))
+		var a []AccuatorData
+		mutex.Lock()
+		a = addAccuatorData(a, heating, "Heating", "HEATING4000")
+		a = addAccuatorData(a, map[bool]int32{true: 1, false: 0}[windows], "Windows", "AUTOW1")
+		a = addAccuatorData(a, map[bool]int32{true: 1, false: 0}[doors], "Doors", "DOOR2032X")
+		mutex.Unlock()
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(a); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	} else {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 	}
