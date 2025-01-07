@@ -1,18 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>insa.application.app</groupId>
-    <artifactId>app</artifactId>
+    <groupId>insa.application.helpapp</groupId>
+    <artifactId>helpapp</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
+	    <module>actuator-service</module>
         <module>sensor-service</module>
-        <module>actuator-service</module>
         <module>decision-service</module>
-        <module>room-service</module>
-        <module>notification-service</module>
-        <module>discovery-service</module>
     </modules>
 
     <dependencyManagement>
