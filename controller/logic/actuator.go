@@ -1,5 +1,7 @@
 package logic
 
+import "errors"
+
 type ActuatorData struct {
 	Name  string `json:"name"`
 	Type  string `json:"type"`
@@ -35,7 +37,7 @@ func addActuatorData(a []ActuatorData, value int32, name, device_type string) []
 	})
 }
 
-func GetActuator() []ActuatorData {
+func GetActuators() []ActuatorData {
 	var a []ActuatorData
 	mutex.Lock()
 	a = addActuatorData(a, accuators[HEATING], "Heating", "HEATING4000")
@@ -45,7 +47,25 @@ func GetActuator() []ActuatorData {
 	return a
 }
 
-func UpdateActuator(id int, state int32) {
+func GetActuator(id int) (error, ActuatorData) {
+	if id >= len(accuators) {
+		return errors.New("id too high"), ActuatorData{
+			Name:  "",
+			Type:  "",
+			Id:    0,
+			Value: 0}
+	}
+
+	a := GetActuators()
+	return nil, a[id]
+}
+
+func UpdateActuator(id int, state int32) bool {
+	if id >= len(accuators) {
+		return false
+	}
+
 	actuatorId := actuatorName(id)
 	accuators[actuatorId] = state
+	return true
 }
