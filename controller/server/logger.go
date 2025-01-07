@@ -38,11 +38,12 @@ func Logformat(level LogLevel, format string, args ...interface{}) {
 	header := colorPrint[level]
 	message := fmt.Sprintf(format, args...)
 	currentTime := time.Now()
-	time := fmt.Sprintf("[%02d:%02d:%02d]", currentTime.Hour(), currentTime.Minute(), currentTime.Second())
-	if level != INFO {
+	time := fmt.Sprintf("[%02d/%02d/%d %02d:%02d:%02d]", currentTime.Day(), currentTime.Month(), currentTime.Year(), currentTime.Hour(), currentTime.Minute(), currentTime.Second())
+	if level == NOLOG {
+		fmt.Printf("%s\t\t%s", time, message)
+	} else if level != INFO {
 		fmt.Printf("%s%s\t%s%s", header, time, message, RESET)
 	} else {
 		fmt.Printf("%s%s\t%s", header, time, message)
 	}
-
 }
