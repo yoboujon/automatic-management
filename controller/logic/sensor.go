@@ -1,5 +1,7 @@
 package logic
 
+import "errors"
+
 type SensorData struct {
 	Name  string  `json:"name"`
 	Type  string  `json:"type"`
@@ -8,19 +10,22 @@ type SensorData struct {
 	Unit  string  `json:"unit"`
 }
 
-// Sensors
-var carbonDioxyde float64
-var temperature_intern float64
-var temperature_extern float64
-var sound float64
-var humidity float64
+type sensorName int
 
-func InitSensors() {
-	carbonDioxyde = 300.0
-	temperature_intern = 25.0
-	temperature_extern = 13.0
-	sound = 30.0
-	humidity = 25.0
+const (
+	CARBON_DIOXIDE sensorName = iota
+	TEMPERATURE_INTERNAL
+	TEMPERATURE_EXTERNAL
+	SOUND
+	HUMIDITY
+)
+
+var sensors = map[sensorName]float64{
+	CARBON_DIOXIDE:       300.0,
+	TEMPERATURE_INTERNAL: 25.0,
+	TEMPERATURE_EXTERNAL: 13.0,
+	SOUND:                30.0,
+	HUMIDITY:             25.0,
 }
 
 func addSensorData(s []SensorData, value float64, id int32, name, device_type, unit string) []SensorData {
@@ -33,14 +38,23 @@ func addSensorData(s []SensorData, value float64, id int32, name, device_type, u
 	})
 }
 
-func GetSensor() []SensorData {
+func GetSensors() []SensorData {
 	var s []SensorData
 	mutex.Lock()
-	s = addSensorData(s, carbonDioxyde, 0, "CCS811", "CO2", "ppm")
-	s = addSensorData(s, temperature_intern, 0, "LM35", "Température Intérieur", "°C")
-	s = addSensorData(s, temperature_extern, 1, "LM35", "Température Extérieur", "°C")
-	s = addSensorData(s, sound, 0, "LM393", "Son", "dB")
-	s = addSensorData(s, humidity, 0, "DHT22", "Humidité", "%")
+	s = addSensorData(s, sensors[CARBON_DIOXIDE], 0, "CCS811", "CO2", "ppm")
+	s = addSensorData(s, sensors[TEMPERATURE_INTERNAL], 0, "LM35", "Température Intérieur", "°C")
+	s = addSensorData(s, sensors[TEMPERATURE_EXTERNAL], 1, "LM35", "Température Extérieur", "°C")
+	s = addSensorData(s, sensors[SOUND], 0, "LM393", "Son", "dB")
+	s = addSensorData(s, sensors[HUMIDITY], 0, "DHT22", "Humidité", "%")
 	mutex.Unlock()
 	return s
+}
+
+func GetSensor(id int) (error, SensorData) {
+	if id >= len(accuators) {
+		return errors.New("id too high"), SensorData{Name: ""}
+	}
+
+	s := GetSensors()
+	return nil, s[id]
 }

@@ -49,11 +49,7 @@ func GetActuators() []ActuatorData {
 
 func GetActuator(id int) (error, ActuatorData) {
 	if id >= len(accuators) {
-		return errors.New("id too high"), ActuatorData{
-			Name:  "",
-			Type:  "",
-			Id:    0,
-			Value: 0}
+		return errors.New("id too high"), ActuatorData{Name: ""}
 	}
 
 	a := GetActuators()

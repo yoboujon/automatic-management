@@ -6,9 +6,6 @@ import (
 )
 
 func main() {
-	// Init
-	logic.InitSensors()
-
 	// Controller Logic
 	logic.StartLogic()
 
