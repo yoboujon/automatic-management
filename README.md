@@ -1,6 +1,9 @@
 # automatic-management
 TP Service Architecture based on meta-micro-micro-services
 
+See [Controller](controller)
+
+See [Application](app)
 
 # Description des services
 
