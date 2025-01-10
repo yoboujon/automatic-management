@@ -1,5 +1,7 @@
 package logic
 
+import "errors"
+
 type ActuatorData struct {
 	Name  string `json:"name"`
 	Type  string `json:"type"`
@@ -7,10 +9,19 @@ type ActuatorData struct {
 	Value int32  `json:"value"`
 }
 
-// Accuators
-var heating int32
-var windows bool
-var doors bool
+type actuatorName int
+
+const (
+	HEATING actuatorName = iota
+	WINDOWS
+	DOORS
+)
+
+var accuators = map[actuatorName]int32{
+	HEATING: 0,
+	WINDOWS: 0,
+	DOORS:   0,
+}
 
 func addActuatorData(a []ActuatorData, value int32, name, device_type string) []ActuatorData {
 	id := int32(0)
@@ -26,12 +37,31 @@ func addActuatorData(a []ActuatorData, value int32, name, device_type string) []
 	})
 }
 
-func GetActuator() []ActuatorData {
+func GetActuators() []ActuatorData {
 	var a []ActuatorData
 	mutex.Lock()
-	a = addActuatorData(a, heating, "Heating", "HEATING4000")
-	a = addActuatorData(a, map[bool]int32{true: 1, false: 0}[windows], "Windows", "AUTOW1")
-	a = addActuatorData(a, map[bool]int32{true: 1, false: 0}[doors], "Doors", "DOOR2032X")
+	a = addActuatorData(a, accuators[HEATING], "Heating", "HEATING4000")
+	a = addActuatorData(a, accuators[WINDOWS], "Windows", "AUTOW1")
+	a = addActuatorData(a, accuators[DOORS], "Doors", "DOOR2032X")
 	mutex.Unlock()
 	return a
+}
+
+func GetActuator(id int) (error, ActuatorData) {
+	if id >= len(accuators) {
+		return errors.New("id too high"), ActuatorData{Name: ""}
+	}
+
+	a := GetActuators()
+	return nil, a[id]
+}
+
+func UpdateActuator(id int, state int32) bool {
+	if id >= len(accuators) {
+		return false
+	}
+
+	actuatorId := actuatorName(id)
+	accuators[actuatorId] = state
+	return true
 }
