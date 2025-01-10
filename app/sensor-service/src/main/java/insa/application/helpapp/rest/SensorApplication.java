@@ -10,7 +10,7 @@ import java.util.List;
 
 @SpringBootApplication
 @RestController
-@RequestMapping("/sensors")
+@RequestMapping("/")
 public class SensorApplication {
 
     @Autowired
@@ -20,24 +20,28 @@ public class SensorApplication {
         SpringApplication.run(SensorApplication.class, args);
     }
 
-    @PostMapping
-    public Sensor createSensor(@RequestBody Sensor sensor) {
-        sensor.setTimestamp(LocalDateTime.now());
-        return sensorRepository.save(sensor);
+    @GetMapping("/test")
+    public String test() {
+        return "test";
     }
 
-    @GetMapping
+    @PostMapping("/init-db")
+    public String initDatabase() {
+        Sensor sensor = new Sensor("temperature", 22.5, LocalDateTime.now());
+        sensorRepository.save(sensor);
+        return "Sensor saved: " + sensor;
+    }
+
+    @GetMapping("/sensors")
     public List<Sensor> getAllSensors() {
         return sensorRepository.findAll();
     }
 
-    @GetMapping("/{id}")
-    public Sensor getSensorById(@PathVariable Long id) {
-        return sensorRepository.findById(id).orElseThrow(() -> new RuntimeException("Sensor not found"));
+    @PostMapping("/test-repo")
+    public String testRepository() {
+    Sensor testSensor = new Sensor("test", 0.0, LocalDateTime.now());
+    sensorRepository.save(testSensor);
+    return "Repository is working!";
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteSensor(@PathVariable Long id) {
-        sensorRepository.deleteById(id);
-    }
 }

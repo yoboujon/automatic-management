@@ -6,7 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDateTime;
 
-@Entity
+@Entity // This annotation marks the class as a JPA entity for the sensor table
 public class Sensor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,7 +15,6 @@ public class Sensor {
     private Double value;
     private LocalDateTime timestamp;
 
-    // Constructeurs, getters, setters
     public Sensor() {}
 
     public Sensor(String type, Double value, LocalDateTime timestamp) {
@@ -54,5 +53,15 @@ public class Sensor {
 
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
+    }
+
+    @Override
+    public String toString() {
+        return "Sensor{" +
+                "id=" + id +
+                ", type='" + type + '\'' +
+                ", value=" + value +
+                ", timestamp=" + timestamp +
+                '}';
     }
 }
