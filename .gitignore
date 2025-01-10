@@ -18,6 +18,3 @@ buildNumber.properties
 
 # Visual Studio Code
 .vscode/
-
-# GoLang
-*.sum
