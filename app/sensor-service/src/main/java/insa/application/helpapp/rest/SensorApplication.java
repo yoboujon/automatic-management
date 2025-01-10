@@ -23,8 +23,8 @@ public class SensorApplication {
 
     private final String externalSensorsUrl = "http://localhost:8085/sensors/";
 
-    @GetMapping("/refresh")
-    public List<Sensor> refreshSensors() {
+    @GetMapping
+    public List<Sensor> getAllSensors() {
         // Récupération des données externes
         RestTemplate restTemplate = new RestTemplate();
         SensorExternal[] externalSensors = restTemplate.getForObject(externalSensorsUrl, SensorExternal[].class);
@@ -32,7 +32,7 @@ public class SensorApplication {
         if (externalSensors != null) {
             // Vider la base existante
             sensorRepository.deleteAll();
-
+            
             // Enregistrer les nouvelles données
             for (SensorExternal externalSensor : externalSensors) {
                 Sensor sensor = new Sensor(
@@ -47,11 +47,6 @@ public class SensorApplication {
         }
 
         // Retourner toutes les données enregistrées
-        return sensorRepository.findAll();
-    }
-
-    @GetMapping
-    public List<Sensor> getAllSensors() {
         return sensorRepository.findAll();
     }
 }
