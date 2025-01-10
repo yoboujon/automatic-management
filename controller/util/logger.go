@@ -34,7 +34,13 @@ var colorPrint = map[LogLevel]colorFormat{
 	ERROR:   RED + "[ERR.]" + LIGHT_RED,
 }
 
+var minimumlog = NOLOG
+
 func Logformat(level LogLevel, format string, args ...interface{}) {
+	if level < minimumlog {
+		return
+	}
+
 	header := colorPrint[level]
 	message := fmt.Sprintf(format, args...)
 	currentTime := time.Now()
@@ -46,4 +52,8 @@ func Logformat(level LogLevel, format string, args ...interface{}) {
 	} else {
 		fmt.Printf("%s%s\t%s", header, time, message)
 	}
+}
+
+func SetLevel(level LogLevel) {
+	minimumlog = level
 }
