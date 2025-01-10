@@ -1,28 +1,43 @@
 package insa.application.helpapp.rest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @SpringBootApplication
 @RestController
+@RequestMapping("/sensors")
 public class SensorApplication {
+
+    @Autowired
+    private SensorRepository sensorRepository;
 
     public static void main(String[] args) {
         SpringApplication.run(SensorApplication.class, args);
     }
 
-    @GetMapping("/hello")
-    public String hello() {
-        return "Hello from SensorApplication!";
+    @PostMapping
+    public Sensor createSensor(@RequestBody Sensor sensor) {
+        sensor.setTimestamp(LocalDateTime.now());
+        return sensorRepository.save(sensor);
     }
 
-    @GetMapping("/sensors")
-    public String getSensors() {
-        RestTemplate restTemplate = new RestTemplate();
-        String sensorsData = restTemplate.getForObject("http://localhost:8085/sensors", String.class);
-        return sensorsData;
+    @GetMapping
+    public List<Sensor> getAllSensors() {
+        return sensorRepository.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public Sensor getSensorById(@PathVariable Long id) {
+        return sensorRepository.findById(id).orElseThrow(() -> new RuntimeException("Sensor not found"));
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteSensor(@PathVariable Long id) {
+        sensorRepository.deleteById(id);
     }
 }
