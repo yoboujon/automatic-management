@@ -28,25 +28,37 @@ public class SensorApplication {
         // Récupération des données externes
         RestTemplate restTemplate = new RestTemplate();
         SensorExternal[] externalSensors = restTemplate.getForObject(externalSensorsUrl, SensorExternal[].class);
-
+    
         if (externalSensors != null) {
-            // Vider la base existante
-            sensorRepository.deleteAll();
-            
-            // Enregistrer les nouvelles données
             for (SensorExternal externalSensor : externalSensors) {
-                Sensor sensor = new Sensor(
+                // Rechercher un capteur existant par nom et type
+                Sensor existingSensor = sensorRepository.findByNameAndType(
                         externalSensor.getName(),
-                        externalSensor.getType(),
-                        externalSensor.getValue(),
-                        externalSensor.getUnit(),
-                        LocalDateTime.now()
+                        externalSensor.getType()
                 );
-                sensorRepository.save(sensor);
+    
+                if (existingSensor != null) {
+                    // Mettre à jour les valeurs du capteur existant
+                    existingSensor.setValue(externalSensor.getValue());
+                    existingSensor.setUnit(externalSensor.getUnit());
+                    existingSensor.setTimestamp(LocalDateTime.now());
+                    sensorRepository.save(existingSensor);
+                } else {
+                    // Ajouter un nouveau capteur si non existant
+                    Sensor newSensor = new Sensor(
+                            externalSensor.getName(),
+                            externalSensor.getType(),
+                            externalSensor.getValue(),
+                            externalSensor.getUnit(),
+                            LocalDateTime.now()
+                    );
+                    sensorRepository.save(newSensor);
+                }
             }
         }
-
+    
         // Retourner toutes les données enregistrées
         return sensorRepository.findAll();
     }
+    
 }
