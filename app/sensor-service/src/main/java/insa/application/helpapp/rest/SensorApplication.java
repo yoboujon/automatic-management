@@ -4,13 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @SpringBootApplication
 @RestController
-@RequestMapping("/")
+@RequestMapping("/sensors")
 public class SensorApplication {
 
     @Autowired
@@ -20,28 +21,37 @@ public class SensorApplication {
         SpringApplication.run(SensorApplication.class, args);
     }
 
-    @GetMapping("/test")
-    public String test() {
-        return "test";
-    }
+    private final String externalSensorsUrl = "http://localhost:8085/sensors/";
 
-    @PostMapping("/init-db")
-    public String initDatabase() {
-        Sensor sensor = new Sensor("temperature", 22.5, LocalDateTime.now());
-        sensorRepository.save(sensor);
-        return "Sensor saved: " + sensor;
-    }
+    @GetMapping("/refresh")
+    public List<Sensor> refreshSensors() {
+        // Récupération des données externes
+        RestTemplate restTemplate = new RestTemplate();
+        SensorExternal[] externalSensors = restTemplate.getForObject(externalSensorsUrl, SensorExternal[].class);
 
-    @GetMapping("/sensors")
-    public List<Sensor> getAllSensors() {
+        if (externalSensors != null) {
+            // Vider la base existante
+            sensorRepository.deleteAll();
+
+            // Enregistrer les nouvelles données
+            for (SensorExternal externalSensor : externalSensors) {
+                Sensor sensor = new Sensor(
+                        externalSensor.getName(),
+                        externalSensor.getType(),
+                        externalSensor.getValue(),
+                        externalSensor.getUnit(),
+                        LocalDateTime.now()
+                );
+                sensorRepository.save(sensor);
+            }
+        }
+
+        // Retourner toutes les données enregistrées
         return sensorRepository.findAll();
     }
 
-    @PostMapping("/test-repo")
-    public String testRepository() {
-    Sensor testSensor = new Sensor("test", 0.0, LocalDateTime.now());
-    sensorRepository.save(testSensor);
-    return "Repository is working!";
+    @GetMapping
+    public List<Sensor> getAllSensors() {
+        return sensorRepository.findAll();
     }
-
 }
