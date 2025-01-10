@@ -18,6 +18,7 @@ const (
 	TEMPERATURE_EXTERNAL
 	SOUND
 	HUMIDITY
+	LIDAR
 )
 
 var sensors = map[sensorName]float64{
@@ -26,6 +27,7 @@ var sensors = map[sensorName]float64{
 	TEMPERATURE_EXTERNAL: 13.0,
 	SOUND:                30.0,
 	HUMIDITY:             25.0,
+	LIDAR:                5.0,
 }
 
 func addSensorData(s []SensorData, value float64, id int32, name, device_type, unit string) []SensorData {
@@ -46,6 +48,7 @@ func GetSensors() []SensorData {
 	s = addSensorData(s, sensors[TEMPERATURE_EXTERNAL], 1, "LM35", "Température Extérieur", "°C")
 	s = addSensorData(s, sensors[SOUND], 0, "LM393", "Son", "dB")
 	s = addSensorData(s, sensors[HUMIDITY], 0, "DHT22", "Humidité", "%")
+	s = addSensorData(s, sensors[LIDAR], 0, "Hokuyo UST-10LX", "Lidar", "pc")
 	mutex.Unlock()
 	return s
 }

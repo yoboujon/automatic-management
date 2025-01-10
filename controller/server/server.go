@@ -1,6 +1,7 @@
 package server
 
 import (
+	"controller/util"
 	"net/http"
 	"strconv"
 )
@@ -18,9 +19,9 @@ func Start(port int64) {
 		handleActuatorRequest(w, r)
 	})
 
-	Logformat(INFO, "Starting server on port %d...\n", port)
+	util.Logformat(util.INFO, "Starting server on port %d...\n", port)
 	if err := http.ListenAndServe(":"+strconv.FormatInt(port, 10), nil); err != nil {
-		Logformat(ERROR, "Could not start server (%s)\n", err.Error())
+		util.Logformat(util.ERROR, "Could not start server (%s)\n", err.Error())
 		panic(err)
 	}
 }
