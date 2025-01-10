@@ -66,8 +66,18 @@ func updateCarbonDioxide() float64 {
 	// Gathering sensor value
 	temp := sensors[CARBON_DIOXIDE]
 
-	temp += (random.Float64() - 0.4) * 2
-	clampValues(&temp, 400, 200)
+	if accuators[WINDOWS] == 1 {
+		// Windows OPENED: level decreases and increase
+		// f(x)=1-x*0.02 ; with x between 0 and 20
+		temp += (random.Float64() - (1 - sensors[LIDAR]*0.02))
+	} else {
+		// Windows CLOSED: level increases depending on LIDAR
+		// Max possible: +1/tick
+		temp += random.Float64() * (sensors[LIDAR] * 0.05)
+	}
+
+	// Typically, for 20 people in a room, the level can rise up to 1500
+	clampValues(&temp, 1500, 400)
 	return temp
 }
 

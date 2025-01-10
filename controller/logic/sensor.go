@@ -22,7 +22,7 @@ const (
 )
 
 var sensors = map[sensorName]float64{
-	CARBON_DIOXIDE:       300.0,
+	CARBON_DIOXIDE:       400.0,
 	TEMPERATURE_INTERNAL: 25.0,
 	TEMPERATURE_EXTERNAL: 13.0,
 	SOUND:                30.0,
