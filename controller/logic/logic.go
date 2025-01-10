@@ -26,10 +26,7 @@ func updateValues() {
 
 		sensors[CARBON_DIOXIDE] = updateCarbonDioxide()
 
-		temp = sensors[TEMPERATURE_INTERNAL]
-		temp += (random.Float64() - 0.5) * 0.05
-		clampValues(&temp, 35, 20)
-		sensors[TEMPERATURE_INTERNAL] = temp
+		sensors[TEMPERATURE_INTERNAL] = updateInternalTemperature()
 
 		temp = sensors[TEMPERATURE_EXTERNAL]
 		temp += (random.Float64() - 0.5) * 0.01
@@ -63,10 +60,9 @@ func clampValues(value *float64, max, min float64) {
 }
 
 func updateCarbonDioxide() float64 {
-	// Gathering sensor value
 	temp := sensors[CARBON_DIOXIDE]
 
-	if accuators[WINDOWS] == 1 {
+	if accuators[WINDOWS] != 0 {
 		// Windows OPENED: level decreases and increase
 		// f(x)=1-x*0.02 ; with x between 0 and 20
 		temp += (random.Float64() - (1 - sensors[LIDAR]*0.02))
@@ -78,6 +74,22 @@ func updateCarbonDioxide() float64 {
 
 	// Typically, for 20 people in a room, the level can rise up to 1500
 	clampValues(&temp, 1500, 400)
+	return temp
+}
+
+func updateInternalTemperature() float64 {
+	temp := sensors[TEMPERATURE_INTERNAL]
+
+	if accuators[WINDOWS] != 0 {
+		// Windows OPENED: level decrease
+		// from 0.096 to 0.001/tick nonlinear
+		temp -= (random.Float64()) * math.Pow(1.22, (temp-12)) * 0.001
+	} else {
+		temp += (random.Float64() - 0.5) * 0.05
+	}
+
+	clampValues(&temp, 35, sensors[TEMPERATURE_EXTERNAL])
+
 	return temp
 }
 
