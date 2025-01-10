@@ -4,15 +4,19 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Column;
 import java.time.LocalDateTime;
 
-@Entity // This annotation marks the class as a JPA entity for the sensor table
+@Entity // This tells Hibernate to make a table out of this class
 public class Sensor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String type;
+    
+    @Column(name = "sensor_value")
     private Double value;
+    
     private LocalDateTime timestamp;
 
     public Sensor() {}
@@ -53,15 +57,5 @@ public class Sensor {
 
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
-    }
-
-    @Override
-    public String toString() {
-        return "Sensor{" +
-                "id=" + id +
-                ", type='" + type + '\'' +
-                ", value=" + value +
-                ", timestamp=" + timestamp +
-                '}';
     }
 }
