@@ -54,7 +54,7 @@ func GetSensors() []SensorData {
 }
 
 func GetSensor(id int) (error, SensorData) {
-	if id >= len(accuators) {
+	if id >= len(sensors) {
 		return errors.New("id too high"), SensorData{Name: ""}
 	}
 
