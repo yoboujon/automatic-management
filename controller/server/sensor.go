@@ -3,7 +3,6 @@ package server
 import (
 	"controller/logic"
 	"controller/util"
-	"encoding/json"
 	"net/http"
 	"strconv"
 	"strings"
@@ -12,11 +11,7 @@ import (
 func sensorAll(w http.ResponseWriter) {
 	util.Logformat(util.NOLOG, "GET '/sensors'\n")
 	var response = logic.GetSensors()
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	sendResponse(w, response)
 }
 
 func sensorSpecific(w http.ResponseWriter, r *http.Request, id int) {
@@ -28,11 +23,7 @@ func sensorSpecific(w http.ResponseWriter, r *http.Request, id int) {
 	}
 
 	util.Logformat(util.NOLOG, "GET '/sensors/%d'\n", id)
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	sendResponse(w, response)
 }
 
 func handleSensorsRequest(w http.ResponseWriter, r *http.Request) {

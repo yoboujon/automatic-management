@@ -56,12 +56,13 @@ func GetActuator(id int) (error, ActuatorData) {
 	return nil, a[id]
 }
 
-func UpdateActuator(id int, state int32) bool {
+func UpdateActuator(id int, state int32) (error, ActuatorData) {
 	if id >= len(accuators) {
-		return false
+		return errors.New("id too high"), ActuatorData{Name: ""}
 	}
 
 	actuatorId := actuatorName(id)
 	accuators[actuatorId] = state
-	return true
+	a := GetActuators()
+	return nil, a[id]
 }

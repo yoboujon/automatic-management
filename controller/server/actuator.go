@@ -18,22 +18,15 @@ func actuatorAll(w http.ResponseWriter, r *http.Request) {
 
 		//GET
 	} else if r.Method == http.MethodGet {
-		util.Logformat(util.INFO, "%s '/actuators'\n", r.Method)
+		util.Logformat(util.NOLOG, "%s '/actuators'\n", r.Method)
 		var response = logic.GetActuators()
-
-		w.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(response); err != nil {
-			util.Logformat(util.WARNING, "%s\n", err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		sendResponse(w, response)
+		return
 	}
 }
 
 func actuatorSpecific(w http.ResponseWriter, r *http.Request, id int) {
-	util.Logformat(util.INFO, "%s '/actuators/%d'\n", r.Method, id)
-
-	// POST
+	// PUT
 	if r.Method == http.MethodPut {
 		var payload Payload
 		err := json.NewDecoder(r.Body).Decode(&payload)
@@ -44,28 +37,30 @@ func actuatorSpecific(w http.ResponseWriter, r *http.Request, id int) {
 		}
 
 		// Updating the actuator if the length is OK
-		if logic.UpdateActuator(id, payload.State) {
-			util.Logformat(util.INFO, "%s '/actuators/%d': Changed to %d\n", r.Method, id, payload.State)
-		} else {
+		err, response := logic.UpdateActuator(id, payload.State)
+		if err != nil {
 			util.Logformat(util.WARNING, "%s '/actuators/%d': id too high\n", r.Method, id)
 			http.Error(w, "id too high", http.StatusBadRequest)
+
+		} else {
+			util.Logformat(util.NOLOG, "%s '/actuators/%d': state=%d\n", r.Method, id, payload.State)
+			util.Logformat(util.INFO, "[%s] Value: %d\n", strings.ToUpper(response.Name), response.Value)
+			sendResponse(w, response)
+			return
 		}
 		return
 
 		// GET
 	} else {
+		util.Logformat(util.NOLOG, "%s '/actuators/%d'\n", r.Method, id)
 		err, response := logic.GetActuator(id)
 		if err != nil {
 			util.Logformat(util.WARNING, "%s '/actuators/%d': %s\n", r.Method, id, err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-
-		w.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(response); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		sendResponse(w, response)
+		return
 	}
 }
 
