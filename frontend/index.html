@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        .room {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #fff;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .room h2 {
+            margin-top: 0;
+        }
+        .sensor {
+            margin: 5px 0;
+            padding: 5px;
+            background-color: #f9f9f9;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+        }
+        .sensor span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>INSA Room Management Dashboard</h1>
+    <div id="rooms"></div>
+
+    <script>
+        async function fetchSensorData() {
+            try {
+                const response = await fetch('http://localhost:8083/sensors');
+                if (!response.ok) throw new Error('Failed to fetch sensor data');
+                const data = await response.json();
+
+                const rooms = {};
+                data.forEach(sensor => {
+                    if (!rooms[sensor.room]) {
+                        rooms[sensor.room] = [];
+                    }
+                    rooms[sensor.room].push(sensor);
+                });
+
+                renderRooms(rooms);
+            } catch (error) {
+                console.error('Error fetching sensor data:', error);
+                document.getElementById('rooms').innerHTML = `<p style="color: red;">Error loading sensor data.</p>`;
+            }
+        }
+
+        function renderRooms(rooms) {
+            const container = document.getElementById('rooms');
+            container.innerHTML = '';
+
+            Object.keys(rooms).forEach(roomId => {
+                const roomDiv = document.createElement('div');
+                roomDiv.className = 'room';
+
+                const roomTitle = document.createElement('h2');
+                roomTitle.textContent = `Room ${roomId}`;
+                roomDiv.appendChild(roomTitle);
+
+                rooms[roomId].forEach(sensor => {
+                    const sensorDiv = document.createElement('div');
+                    sensorDiv.className = 'sensor';
+                    sensorDiv.innerHTML = `
+                        <p><span>Type:</span> ${sensor.type}</p>
+                        <p><span>Name:</span> ${sensor.name}</p>
+                        <p><span>Value:</span> ${sensor.value} ${sensor.unit}</p>
+                        <p><span>Last Updated:</span> ${new Date(sensor.timestamp).toLocaleString()}</p>
+                    `;
+                    roomDiv.appendChild(sensorDiv);
+                });
+
+                container.appendChild(roomDiv);
+            });
+        }
+
+        fetchSensorData();
+    </script>
+</body>
+</html>
