@@ -20,19 +20,21 @@ public class Sensor {
     
     private String unit;
     private LocalDateTime timestamp;
+    private int room; // Add this line
 
-    // Constructeurs, getters et setters
+    // Constructors, getters, and setters
     public Sensor() {}
 
-    public Sensor(String name, String type, Double value, String unit, LocalDateTime timestamp) {
+    public Sensor(String name, String type, Double value, String unit, LocalDateTime timestamp, int room) {
         this.name = name;
         this.type = type;
         this.value = value;
         this.unit = unit;
         this.timestamp = timestamp;
+        this.room = room;
     }
 
-    // Getters et setters
+    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -79,5 +81,13 @@ public class Sensor {
 
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public int getRoom() {
+        return room;
+    }
+
+    public void setRoom(int room) {
+        this.room = room;
     }
 }

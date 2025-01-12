@@ -5,8 +5,9 @@ public class SensorExternal {
     private String type;
     private double value;
     private String unit;
+    private int room; // Add this line
 
-    // Getters et setters
+    // Getters and setters
     public String getName() {
         return name;
     }
@@ -37,5 +38,13 @@ public class SensorExternal {
 
     public void setUnit(String unit) {
         this.unit = unit;
+    }
+
+    public int getRoom() {
+        return room;
+    }
+
+    public void setRoom(int room) {
+        this.room = room;
     }
 }

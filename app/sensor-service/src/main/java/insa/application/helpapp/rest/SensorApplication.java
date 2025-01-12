@@ -42,6 +42,7 @@ public class SensorApplication {
                     existingSensor.setValue(externalSensor.getValue());
                     existingSensor.setUnit(externalSensor.getUnit());
                     existingSensor.setTimestamp(LocalDateTime.now());
+                    existingSensor.setRoom(externalSensor.getRoom()); // Add this line
                     sensorRepository.save(existingSensor);
                 } else {
                     // Ajouter un nouveau capteur si non existant
@@ -50,7 +51,8 @@ public class SensorApplication {
                             externalSensor.getType(),
                             externalSensor.getValue(),
                             externalSensor.getUnit(),
-                            LocalDateTime.now()
+                            LocalDateTime.now(),
+                            externalSensor.getRoom() // Add this line
                     );
                     sensorRepository.save(newSensor);
                 }
@@ -60,5 +62,4 @@ public class SensorApplication {
         // Retourner toutes les données enregistrées
         return sensorRepository.findAll();
     }
-    
 }
