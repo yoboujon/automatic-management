@@ -8,6 +8,7 @@ type SensorData struct {
 	Id    int32   `json:"id"`
 	Value float64 `json:"value"`
 	Unit  string  `json:"unit"`
+	Room  int     `json:"room"`
 }
 
 type sensorName int
@@ -30,25 +31,26 @@ var sensors = map[sensorName]float64{
 	LIDAR:                5.0,
 }
 
-func addSensorData(s []SensorData, value float64, id int32, name, device_type, unit string) []SensorData {
+func addSensorData(s []SensorData, value float64, id int32, name, device_type, unit string, room int) []SensorData {
 	return append(s, SensorData{
 		Name:  name,
 		Type:  device_type,
 		Id:    id,
 		Value: value,
 		Unit:  unit,
+		Room:  room,
 	})
 }
 
 func GetSensors() []SensorData {
 	var s []SensorData
 	mutex.Lock()
-	s = addSensorData(s, sensors[CARBON_DIOXIDE], 0, "CCS811", "CO2", "ppm")
-	s = addSensorData(s, sensors[TEMPERATURE_INTERNAL], 0, "LM35", "Température Intérieur", "°C")
-	s = addSensorData(s, sensors[TEMPERATURE_EXTERNAL], 1, "LM35", "Température Extérieur", "°C")
-	s = addSensorData(s, sensors[SOUND], 0, "LM393", "Son", "dB")
-	s = addSensorData(s, sensors[HUMIDITY], 0, "DHT22", "Humidité", "%")
-	s = addSensorData(s, sensors[LIDAR], 0, "Hokuyo UST-10LX", "Lidar", "pc")
+	s = addSensorData(s, sensors[CARBON_DIOXIDE], 0, "CCS811", "CO2", "ppm", 1)
+	s = addSensorData(s, sensors[TEMPERATURE_INTERNAL], 0, "LM35", "Température Intérieur", "°C", 1)
+	s = addSensorData(s, sensors[TEMPERATURE_EXTERNAL], 1, "LM35", "Température Extérieur", "°C", 1)
+	s = addSensorData(s, sensors[SOUND], 0, "LM393", "Son", "dB", 1)
+	s = addSensorData(s, sensors[HUMIDITY], 0, "DHT22", "Humidité", "%", 1)
+	s = addSensorData(s, sensors[LIDAR], 0, "Hokuyo UST-10LX", "Lidar", "pc", 1)
 	mutex.Unlock()
 	return s
 }

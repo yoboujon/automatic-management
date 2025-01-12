@@ -7,6 +7,7 @@ type ActuatorData struct {
 	Type  string `json:"type"`
 	Id    int32  `json:"id"`
 	Value int32  `json:"value"`
+	Room  int    `json:"room"`
 }
 
 type actuatorName int
@@ -23,7 +24,7 @@ var accuators = map[actuatorName]int32{
 	DOORS:   0,
 }
 
-func addActuatorData(a []ActuatorData, value int32, name, device_type string) []ActuatorData {
+func addActuatorData(a []ActuatorData, value int32, name, device_type string, room int) []ActuatorData {
 	id := int32(0)
 	if len(a) != 0 {
 		id = (a[len(a)-1].Id) + 1
@@ -34,15 +35,16 @@ func addActuatorData(a []ActuatorData, value int32, name, device_type string) []
 		Type:  device_type,
 		Id:    id,
 		Value: value,
+		Room:  room,
 	})
 }
 
 func GetActuators() []ActuatorData {
 	var a []ActuatorData
 	mutex.Lock()
-	a = addActuatorData(a, accuators[HEATING], "Heating", "HEATING4000")
-	a = addActuatorData(a, accuators[WINDOWS], "Windows", "AUTOW1")
-	a = addActuatorData(a, accuators[DOORS], "Doors", "DOOR2032X")
+	a = addActuatorData(a, accuators[HEATING], "Heating", "HEATING4000", 1)
+	a = addActuatorData(a, accuators[WINDOWS], "Windows", "AUTOW1", 1)
+	a = addActuatorData(a, accuators[DOORS], "Doors", "DOOR2032X", 1)
 	mutex.Unlock()
 	return a
 }
