@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SensorRepository extends JpaRepository<Sensor, Long> {
-    Sensor findByNameAndType(String name, String type);
+    Sensor findByNameAndTypeAndRoom(String name, String type, int room);
 }

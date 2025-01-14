@@ -51,6 +51,14 @@ func GetSensors() []SensorData {
 	s = addSensorData(s, sensors[SOUND], 0, "LM393", "Son", "dB", 1)
 	s = addSensorData(s, sensors[HUMIDITY], 0, "DHT22", "Humidité", "%", 1)
 	s = addSensorData(s, sensors[LIDAR], 0, "Hokuyo UST-10LX", "Lidar", "pc", 1)
+
+	s = addSensorData(s, sensors[CARBON_DIOXIDE], 0, "CCS811", "CO2", "ppm", 2)
+	s = addSensorData(s, sensors[TEMPERATURE_INTERNAL], 0, "LM35", "Température Intérieur", "°C", 2)
+	s = addSensorData(s, sensors[TEMPERATURE_EXTERNAL], 1, "LM35", "Température Extérieur", "°C", 2)
+	s = addSensorData(s, sensors[SOUND], 0, "LM393", "Son", "dB", 2)
+	s = addSensorData(s, sensors[HUMIDITY], 0, "DHT22", "Humidité", "%", 2)
+	s = addSensorData(s, sensors[LIDAR], 0, "Hokuyo UST-10LX", "Lidar", "pc", 2)
+
 	mutex.Unlock()
 	return s
 }

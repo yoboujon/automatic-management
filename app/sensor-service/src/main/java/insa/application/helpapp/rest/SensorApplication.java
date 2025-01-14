@@ -11,6 +11,7 @@ import java.util.List;
 
 @SpringBootApplication
 @RestController
+@CrossOrigin
 @RequestMapping("/sensors")
 public class SensorApplication {
 
@@ -31,10 +32,11 @@ public class SensorApplication {
     
         if (externalSensors != null) {
             for (SensorExternal externalSensor : externalSensors) {
-                // Rechercher un capteur existant par nom et type
-                Sensor existingSensor = sensorRepository.findByNameAndType(
+                // Rechercher un capteur existant par nom, type et room
+                Sensor existingSensor = sensorRepository.findByNameAndTypeAndRoom(
                         externalSensor.getName(),
-                        externalSensor.getType()
+                        externalSensor.getType(),
+                        externalSensor.getRoom()
                 );
     
                 if (existingSensor != null) {
@@ -42,7 +44,6 @@ public class SensorApplication {
                     existingSensor.setValue(externalSensor.getValue());
                     existingSensor.setUnit(externalSensor.getUnit());
                     existingSensor.setTimestamp(LocalDateTime.now());
-                    existingSensor.setRoom(externalSensor.getRoom()); // Add this line
                     sensorRepository.save(existingSensor);
                 } else {
                     // Ajouter un nouveau capteur si non existant
@@ -52,7 +53,7 @@ public class SensorApplication {
                             externalSensor.getValue(),
                             externalSensor.getUnit(),
                             LocalDateTime.now(),
-                            externalSensor.getRoom() // Add this line
+                            externalSensor.getRoom()
                     );
                     sensorRepository.save(newSensor);
                 }
