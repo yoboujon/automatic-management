@@ -5,6 +5,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,9 +41,11 @@ public class SensorApplication {
                         externalSensor.getRoom()
                 );
     
+                BigDecimal roundedValue = new BigDecimal(externalSensor.getValue()).setScale(2, RoundingMode.HALF_UP);
+    
                 if (existingSensor != null) {
                     // Mettre à jour les valeurs du capteur existant
-                    existingSensor.setValue(externalSensor.getValue());
+                    existingSensor.setValue(roundedValue.doubleValue());
                     existingSensor.setUnit(externalSensor.getUnit());
                     existingSensor.setTimestamp(LocalDateTime.now());
                     sensorRepository.save(existingSensor);
@@ -50,7 +54,7 @@ public class SensorApplication {
                     Sensor newSensor = new Sensor(
                             externalSensor.getName(),
                             externalSensor.getType(),
-                            externalSensor.getValue(),
+                            roundedValue.doubleValue(),
                             externalSensor.getUnit(),
                             LocalDateTime.now(),
                             externalSensor.getRoom()
