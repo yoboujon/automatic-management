@@ -13,12 +13,8 @@ type Payload struct {
 
 func Start(port int64) {
 	// Creating endpoints
-	http.HandleFunc("/sensors/", func(w http.ResponseWriter, r *http.Request) {
-		handleSensorsRequest(w, r)
-	})
-	http.HandleFunc("/actuators/", func(w http.ResponseWriter, r *http.Request) {
-		handleActuatorRequest(w, r)
-	})
+	http.HandleFunc("/sensors/", corsMiddleware(handleSensorsRequest))
+	http.HandleFunc("/actuators/", corsMiddleware(handleActuatorRequest))
 
 	util.Logformat(util.INFO, "Starting server on port %d...\n", port)
 	if err := http.ListenAndServe(":"+strconv.FormatInt(port, 10), nil); err != nil {
@@ -33,5 +29,21 @@ func sendResponse(w http.ResponseWriter, r any) {
 		util.Logformat(util.ERROR, "%s\n", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+}
+
+func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// Handle preflight request
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next(w, r)
 	}
 }

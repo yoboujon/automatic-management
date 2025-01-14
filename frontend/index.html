@@ -24,18 +24,22 @@
         .room h2 {
             margin-top: 0;
         }
-        .sensor {
+        .sensor, .actuator {
             margin: 5px 0;
             padding: 5px;
-            background-color: #f9f9f9;
             border-radius: 3px;
             border: 1px solid #ddd;
             font-size: 0.9em;
+            background-color: #f9f9f9;
         }
-        .sensor p {
+        .sensor[data-value="1"], .actuator[data-value="1"] {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .sensor p, .actuator p {
             margin: 2px 0;
         }
-        .sensor span {
+        .sensor span, .actuator span {
             font-weight: bold;
         }
     </style>
@@ -45,24 +49,45 @@
     <div id="rooms"></div>
 
     <script>
-        async function fetchSensorData() {
+        async function fetchData() {
             try {
-                const response = await fetch('http://localhost:8083/sensors');
-                if (!response.ok) throw new Error('Failed to fetch sensor data');
-                const data = await response.json();
+                // Fetch sensors and actuators in parallel
+                const [sensorResponse, actuatorResponse] = await Promise.all([
+                    fetch('http://localhost:8083/sensors'),
+                    fetch('http://localhost:8085/actuators/')
+                ]);
+
+                if (!sensorResponse.ok || !actuatorResponse.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+
+                const [sensorData, actuatorData] = await Promise.all([
+                    sensorResponse.json(),
+                    actuatorResponse.json()
+                ]);
 
                 const rooms = {};
-                data.forEach(sensor => {
+
+                // Group sensors by room
+                sensorData.forEach(sensor => {
                     if (!rooms[sensor.room]) {
-                        rooms[sensor.room] = [];
+                        rooms[sensor.room] = { sensors: [], actuators: [] };
                     }
-                    rooms[sensor.room].push(sensor);
+                    rooms[sensor.room].sensors.push(sensor);
+                });
+
+                // Group actuators by room
+                actuatorData.forEach(actuator => {
+                    if (!rooms[actuator.room]) {
+                        rooms[actuator.room] = { sensors: [], actuators: [] };
+                    }
+                    rooms[actuator.room].actuators.push(actuator);
                 });
 
                 renderRooms(rooms);
             } catch (error) {
-                console.error('Error fetching sensor data:', error);
-                document.getElementById('rooms').innerHTML = `<p style="color: red;">Error loading sensor data.</p>`;
+                console.error('Error fetching data:', error);
+                document.getElementById('rooms').innerHTML = `<p style="color: red;">Error loading data.</p>`;
             }
         }
 
@@ -75,12 +100,14 @@
                 roomDiv.className = 'room';
 
                 const roomTitle = document.createElement('h2');
-                roomTitle.textContent = `Room ${roomId}`;
+                roomTitle.textContent = `📚 Room ${roomId}`;
                 roomDiv.appendChild(roomTitle);
 
-                rooms[roomId].forEach(sensor => {
+                // Render sensors
+                rooms[roomId].sensors.forEach(sensor => {
                     const sensorDiv = document.createElement('div');
                     sensorDiv.className = 'sensor';
+                    sensorDiv.setAttribute('data-value', sensor.value);
                     sensorDiv.innerHTML = `
                         <p><span>Type:</span> ${sensor.type}</p>
                         <p><span>Name:</span> ${sensor.name}</p>
@@ -90,11 +117,30 @@
                     roomDiv.appendChild(sensorDiv);
                 });
 
+                // Render actuators
+                rooms[roomId].actuators.forEach(actuator => {
+                    const actuatorDiv = document.createElement('div');
+                    actuatorDiv.className = 'actuator';
+                    actuatorDiv.setAttribute('data-value', actuator.value);
+                    actuatorDiv.innerHTML = `
+                        <p><span>Type:</span> ${actuator.type}</p>
+                        <p><span>Name:</span> ${actuator.name}</p>
+                        <p><span>Value:</span> ${actuator.value}</p>
+                    `;
+                    if (actuator.value == 0) {
+                        actuatorDiv.style.color = 'red';
+                    } else if (actuator.value == 1) {
+                        actuatorDiv.style.backgroundColor = '#d4edda';
+                        actuatorDiv.style.borderColor = '#c3e6cb';
+                    }
+                    roomDiv.appendChild(actuatorDiv);
+                });
+
                 container.appendChild(roomDiv);
             });
         }
 
-        fetchSensorData();
+        fetchData();
     </script>
 </body>
 </html>
