@@ -16,13 +16,12 @@ class Decision {
     private String action;
     private LocalDateTime timestamp;
 
-    // Constructeurs, getters et setters
     public Decision() {}
 
-    public Decision(String condition, String action, LocalDateTime timestamp) {
-        this.condition = condition;
-        this.action = action;
-        this.timestamp = timestamp;
+    public Decision(DecisionList decision) {
+        this.condition = decision.getCondition();
+        this.action = decision.getAction();
+        this.timestamp = LocalDateTime.now();
     }
 
     public Long getId() {
