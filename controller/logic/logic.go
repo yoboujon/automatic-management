@@ -84,8 +84,13 @@ func updateInternalTemperature() float64 {
 		// Windows OPENED: level decrease
 		// from 0.096 to 0.001/tick nonlinear
 		temp -= (random.Float64()) * math.Pow(1.22, (temp-12)) * 0.001
+	} else if accuators[HEATING] > 0 && temp < float64(accuators[HEATING]) {
+		temp += (random.Float64()) * 0.01
 	} else {
-		temp += (random.Float64() - 0.5) * 0.05
+		// The more people there are the less possible it is that temperature lowers
+		// -0,0025 and 0,0025/tick for 0 people - 0 and 0.005/tick for 20 people
+		offset := 0.5 - ((sensors[LIDAR]) * (0.5 / 20))
+		temp += (random.Float64() - offset) * 0.005
 	}
 
 	clampValues(&temp, 35, sensors[TEMPERATURE_EXTERNAL])
