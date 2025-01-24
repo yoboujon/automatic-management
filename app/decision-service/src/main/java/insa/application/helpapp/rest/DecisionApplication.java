@@ -20,6 +20,7 @@ import java.util.List;
 @RestController
 @EnableScheduling
 public class DecisionApplication {
+    private static final String PATH = "http://localhost:8085";
 
     public static void main(String[] args) {
         SpringApplication.run(DecisionApplication.class, args);
@@ -40,24 +41,42 @@ public class DecisionApplication {
         return new RestTemplate();
     }
 
-    private float getRequest(String url) {
+    private float getSensor(int id) {
         RestTemplate restTemplate = new RestTemplate();
+        String url = PATH+"/sensors/"+String.valueOf(id);
         SensorResponse response = restTemplate.getForObject(url, SensorResponse.class);
         return response != null ? response.getValue() : 0;
+    }
+
+    private int getActuator(int id) {
+        RestTemplate restTemplate = new RestTemplate();
+        String url = PATH+"/actuators/"+String.valueOf(id);
+        ActuatorResponse response = restTemplate.getForObject(url, ActuatorResponse.class);
+        return response != null ? response.getValue() : 0;   
+    }
+
+    private void putActuator(int id, int state) {
+        RestTemplate restTemplate = new RestTemplate();
+        String url = PATH+"/actuators/"+String.valueOf(id);
+        ActuatorRequest request = new ActuatorRequest(state);
+        restTemplate.put(url, request);
     }
     
 
     // Main loop for the decision application
     @Scheduled(fixedRate = 200)
     public void decisionLoop() {
-        float temperature = getRequest("http://localhost:8085/sensors/1");
-        float ppm = getRequest("http://localhost:8085/sensors/0");
+        float temperature = getSensor(1);
+        float ppm = getSensor(0);
+        int windowStatus = getActuator(1);
 
-        if(temperature < 20) {
+        if(temperature < 20 && windowStatus != 0) {
             // startHeating()
+
             DecisionList d = new DecisionList(ActionEnum.HEATING_START, SensorEnum.TEMPERATURE);
             decisionRepository.save(new Decision(d));
-            // closeWindow()
+            // Closing window
+            putActuator(1, 0);
             d = new DecisionList(ActionEnum.HEATING_START, SensorEnum.TEMPERATURE);
             decisionRepository.save(new Decision(d));
         }
@@ -68,14 +87,16 @@ public class DecisionApplication {
             decisionRepository.save(new Decision(d));
         }
 
-        if(temperature > 25) {
-            // openWindow()
+        if(temperature > 25 && windowStatus != 1) {
+            // Opening window
+            putActuator(1, 1);
             DecisionList d = new DecisionList(ActionEnum.WINDOWS_OPEN, SensorEnum.TEMPERATURE);
             decisionRepository.save(new Decision(d));
         }
 
-        if(ppm >= 800) {
-            // openWindow()
+        if(ppm >= 800 && windowStatus != 1) {
+            // Opening window
+            putActuator(1, 1);
             DecisionList d = new DecisionList(ActionEnum.WINDOWS_OPEN, SensorEnum.CARBON_DIOXIDE);
             decisionRepository.save(new Decision(d));
         }
