@@ -64,7 +64,9 @@ func UpdateActuator(id int, state int32) (error, ActuatorData) {
 	}
 
 	actuatorId := actuatorName(id)
+	mutex.Lock()
 	accuators[actuatorId] = state
+	mutex.Unlock()
 	a := GetActuators()
 	return nil, a[id]
 }
