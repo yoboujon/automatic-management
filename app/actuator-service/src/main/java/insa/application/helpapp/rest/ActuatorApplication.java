@@ -49,17 +49,19 @@ public class ActuatorApplication {
 
         @GetMapping("/actuators/{id}")
         public Actuator getActuatorById(@PathVariable Long id) {
-            return actuatorRepository.findById(id).orElseThrow(() -> new RuntimeException("Actuator not found"));
+            return actuatorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Actuator not found"));
         }
 
         @PutMapping("/actuators/{id}")
         public Actuator updateActuatorState(@PathVariable Long id, @RequestBody StateRequest stateRequest) {
-            Actuator actuator = actuatorRepository.findById(id).orElseThrow(() -> new RuntimeException("Actuator not found"));
+            Actuator actuator = actuatorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Actuator not found"));
             actuator.setSvalue(stateRequest.getState());
             actuatorRepository.save(actuator);
 
             // Send PUT request to external API
-            String url = "http://localhost:8085/actuators/" + id;
+            String url = "http://localhost:8085/actuators/" + actuator.getExternalId();
             restTemplate.put(url, stateRequest);
 
             return actuator;
@@ -92,36 +94,21 @@ public class ActuatorApplication {
 
             if (externalActuators != null) {
                 for (ExternalActuator externalActuator : externalActuators) {
-                    Actuator actuator = new Actuator(
-                        externalActuator.getId(),
-                        externalActuator.getName(),
-                        externalActuator.getType(),
-                        externalActuator.getValue(), // Set svalue to value from external API
-                        externalActuator.getRoom()
-                    );
-                    actuatorRepository.save(actuator);
+                    Actuator actuator = actuatorRepository.findByExternalId(externalActuator.getId());
+                    if (actuator == null) { // Avoid duplicates
+                        actuator = new Actuator(
+                            externalActuator.getId(), // External ID
+                            externalActuator.getName(),
+                            externalActuator.getType(),
+                            externalActuator.getValue(),
+                            externalActuator.getRoom()
+                        );
+                        actuatorRepository.save(actuator);
+                    }
                 }
             }
 
-            // Ensure actuator with id 0 is included
-            Actuator actuatorWithIdZero = actuatorRepository.findById(0L).orElse(null);
-            if (actuatorWithIdZero == null) {
-                // Retrieve actuator with id 0 from external API
-                String actuatorUrl = "http://localhost:8085/actuators/0";
-                ExternalActuator externalActuatorWithIdZero = restTemplate.getForObject(actuatorUrl, ExternalActuator.class);
-                if (externalActuatorWithIdZero != null) {
-                    actuatorWithIdZero = new Actuator(
-                        externalActuatorWithIdZero.getId(),
-                        externalActuatorWithIdZero.getName(),
-                        externalActuatorWithIdZero.getType(),
-                        externalActuatorWithIdZero.getValue(),
-                        externalActuatorWithIdZero.getRoom()
-                    );
-                    actuatorRepository.save(actuatorWithIdZero);
-                }
-            }
-
-            // Retrieve all actuators and print to console
+            // Print stored actuators
             List<Actuator> storedActuators = actuatorRepository.findAll();
             System.out.println("Stored Actuators:");
             storedActuators.forEach(System.out::println);
@@ -133,9 +120,10 @@ public class ActuatorApplication {
 class Actuator {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Database-generated ID
     private Long id;
 
+    private Long externalId; // ID from external API
     private String name;
     private String type;
     private Integer svalue;
@@ -144,8 +132,8 @@ class Actuator {
     public Actuator() {
     }
 
-    public Actuator(Long id, String name, String type, Integer svalue, Integer room) {
-        this.id = id;
+    public Actuator(Long externalId, String name, String type, Integer svalue, Integer room) {
+        this.externalId = externalId;
         this.name = name;
         this.type = type;
         this.svalue = svalue;
@@ -156,8 +144,12 @@ class Actuator {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Long getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(Long externalId) {
+        this.externalId = externalId;
     }
 
     public String getName() {
@@ -196,6 +188,7 @@ class Actuator {
     public String toString() {
         return "Actuator{" +
                 "id=" + id +
+                ", externalId=" + externalId +
                 ", name='" + name + '\'' +
                 ", type='" + type + '\'' +
                 ", svalue=" + svalue +
@@ -205,7 +198,7 @@ class Actuator {
 }
 
 class ExternalActuator {
-    private Long id;
+    private Long id; // External API ID
     private String name;
     private String type;
     private Integer value;
@@ -254,4 +247,5 @@ class ExternalActuator {
 }
 
 interface ActuatorRepository extends JpaRepository<Actuator, Long> {
+    Actuator findByExternalId(Long externalId); // Custom method to find by external ID
 }
