@@ -6,7 +6,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,6 +25,37 @@ public class ActuatorApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(ActuatorApplication.class, args);
+    }
+
+    @RestController
+    public static class ActuatorController {
+
+        @Autowired
+        private ActuatorRepository actuatorRepository;
+
+        @GetMapping("/actuators")
+        public List<Actuator> getAllActuators() {
+            return actuatorRepository.findAll();
+        }
+
+        @PutMapping("/actuators/{id}")
+        public Actuator updateActuatorState(@PathVariable Long id, @RequestBody StateRequest stateRequest) {
+            Actuator actuator = actuatorRepository.findById(id).orElseThrow(() -> new RuntimeException("Actuator not found"));
+            actuator.setValue(stateRequest.getState());
+            return actuatorRepository.save(actuator);
+        }
+    }
+
+    public static class StateRequest {
+        private Integer state;
+
+        public Integer getState() {
+            return state;
+        }
+
+        public void setState(Integer state) {
+            this.state = state;
+        }
     }
 
     @Component
