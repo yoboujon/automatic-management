@@ -38,10 +38,15 @@ public class ActuatorApplication {
             return actuatorRepository.findAll();
         }
 
+        @GetMapping("/actuators/{id}")
+        public Actuator getActuatorById(@PathVariable Long id) {
+            return actuatorRepository.findById(id).orElseThrow(() -> new RuntimeException("Actuator not found"));
+        }
+
         @PutMapping("/actuators/{id}")
         public Actuator updateActuatorState(@PathVariable Long id, @RequestBody StateRequest stateRequest) {
             Actuator actuator = actuatorRepository.findById(id).orElseThrow(() -> new RuntimeException("Actuator not found"));
-            actuator.setValue(stateRequest.getState());
+            actuator.setSvalue(stateRequest.getState());
             return actuatorRepository.save(actuator);
         }
     }
@@ -138,11 +143,11 @@ class Actuator {
         this.type = type;
     }
 
-    public Integer getValue() {
+    public Integer getSvalue() {
         return svalue;
     }
 
-    public void setValue(Integer svalue) {
+    public void setSvalue(Integer svalue) {
         this.svalue = svalue;
     }
 
