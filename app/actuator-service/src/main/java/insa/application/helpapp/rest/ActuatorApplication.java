@@ -1,47 +1,134 @@
 package insa.application.helpapp.rest;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+import java.util.List;
 
 @SpringBootApplication
 public class ActuatorApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(ActuatorApplication.class, args);
-
-        // Fetch actuators from external API and print to console
-        fetchActuators();
     }
 
-    public static void fetchActuators() {
-        // URL of the external API
-        String apiUrl = "http://localhost:8085/actuators/";
+    @Component
+    public static class DataLoader implements CommandLineRunner {
 
-        // RestTemplate to make HTTP requests
-        RestTemplate restTemplate = new RestTemplate();
+        @Autowired
+        private ActuatorRepository actuatorRepository;
 
-        try {
-            // Fetch actuators as an array
-            Actuator[] actuators = restTemplate.getForObject(apiUrl, Actuator[].class);
+        @Override
+        public void run(String... args) {
+            RestTemplate restTemplate = new RestTemplate();
+            String url = "http://localhost:8085/actuators/";
+            Actuator[] actuators = restTemplate.getForObject(url, Actuator[].class);
 
             if (actuators != null) {
-                // Print each actuator to the console
-                Arrays.stream(actuators).forEach(actuator -> {
-                    System.out.println("Name: " + actuator.getName());
-                    System.out.println("Type: " + actuator.getType());
-                    System.out.println("ID: " + actuator.getId());
-                    System.out.println("Value: " + actuator.getValue());
-                    System.out.println("Room: " + actuator.getRoom());
-                    System.out.println("--------------------------------");
-                });
-            } else {
-                System.out.println("No actuators found.");
+                for (Actuator actuator : actuators) {
+                    actuatorRepository.save(actuator);
+                }
             }
-        } catch (Exception e) {
-            System.err.println("Error fetching actuators: " + e.getMessage());
+
+            // Ensure actuator with id 0 is included
+            Actuator actuatorWithIdZero = actuatorRepository.findById(0L).orElse(null);
+            if (actuatorWithIdZero == null) {
+                actuatorWithIdZero = new Actuator(0L, "Heating", "HEATING4000", 0, 1);
+                actuatorRepository.save(actuatorWithIdZero);
+            }
+
+            // Retrieve all actuators and print to console
+            List<Actuator> storedActuators = actuatorRepository.findAll();
+            System.out.println("Stored Actuators:");
+            storedActuators.forEach(System.out::println);
         }
     }
+}
+
+@Entity
+class Actuator {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+    private String type;
+    private Integer svalue;
+    private Integer room;
+
+    public Actuator() {
+    }
+
+    public Actuator(Long id, String name, String type, Integer svalue, Integer room) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.svalue = svalue;
+        this.room = room;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Integer getValue() {
+        return svalue;
+    }
+
+    public void setValue(Integer svalue) {
+        this.svalue = svalue;
+    }
+
+    public Integer getRoom() {
+        return room;
+    }
+
+    public void setRoom(Integer room) {
+        this.room = room;
+    }
+
+    @Override
+    public String toString() {
+        return "Actuator{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", type='" + type + '\'' +
+                ", svalue=" + svalue +
+                ", room=" + room +
+                '}';
+    }
+}
+
+interface ActuatorRepository extends JpaRepository<Actuator, Long> {
 }
