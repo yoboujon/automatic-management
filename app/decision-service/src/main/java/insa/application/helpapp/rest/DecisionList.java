@@ -68,13 +68,13 @@ public class DecisionList {
                 }
             case WINDOWS_OPEN:
                 if(sensor == SensorEnum.TEMPERATURE) {
-                    return "Temperature too high (> 15°C)";
+                    return "Temperature too high (> 25°C)";
                 } else if (sensor == SensorEnum.CARBON_DIOXIDE) {
                     return "Carbon Dioxide Level too high (> 800 ppm)";
                 }
             case WINDOWS_CLOSE:
                 if(sensor == SensorEnum.TEMPERATURE) {
-                    return "Heating Device started.";
+                    return "Keeping room hot.";
                 } else {
                     return UNKNOWN_CONDITION;
                 }
