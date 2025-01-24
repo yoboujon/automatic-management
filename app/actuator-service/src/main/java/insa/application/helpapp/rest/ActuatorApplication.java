@@ -106,8 +106,19 @@ public class ActuatorApplication {
             // Ensure actuator with id 0 is included
             Actuator actuatorWithIdZero = actuatorRepository.findById(0L).orElse(null);
             if (actuatorWithIdZero == null) {
-                actuatorWithIdZero = new Actuator(0L, "Heating", "HEATING4000", 0, 1);
-                actuatorRepository.save(actuatorWithIdZero);
+                // Retrieve actuator with id 0 from external API
+                String actuatorUrl = "http://localhost:8085/actuators/0";
+                ExternalActuator externalActuatorWithIdZero = restTemplate.getForObject(actuatorUrl, ExternalActuator.class);
+                if (externalActuatorWithIdZero != null) {
+                    actuatorWithIdZero = new Actuator(
+                        externalActuatorWithIdZero.getId(),
+                        externalActuatorWithIdZero.getName(),
+                        externalActuatorWithIdZero.getType(),
+                        externalActuatorWithIdZero.getValue(),
+                        externalActuatorWithIdZero.getRoom()
+                    );
+                    actuatorRepository.save(actuatorWithIdZero);
+                }
             }
 
             // Retrieve all actuators and print to console
