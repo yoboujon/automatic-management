@@ -68,11 +68,21 @@ public class DecisionApplication {
     public void decisionLoop() {
         float temperature = getSensor(1);
         float ppm = getSensor(0);
+        int heatingValue = getActuator(0);
         int windowStatus = getActuator(1);
 
-        if(temperature < 20 && windowStatus != 0) {
-            // startHeating()
+        // PPM has a higher priority than everything else
+        if(ppm >= 800 && windowStatus != 1) {
+            // Opening window
+            putActuator(1, 1);
+            DecisionList d = new DecisionList(ActionEnum.WINDOWS_OPEN, SensorEnum.CARBON_DIOXIDE);
+            decisionRepository.save(new Decision(d));
+            return;
+        }
 
+        if(temperature < 20 && windowStatus != 0 && heatingValue != 22) {
+            // Start heating
+            putActuator(0, 22);
             DecisionList d = new DecisionList(ActionEnum.HEATING_START, SensorEnum.TEMPERATURE);
             decisionRepository.save(new Decision(d));
             // Closing window
@@ -81,23 +91,14 @@ public class DecisionApplication {
             decisionRepository.save(new Decision(d));
         }
 
-        if(temperature > 22) {
-            // stopHeating()
-            DecisionList d = new DecisionList(ActionEnum.HEATING_STOP, SensorEnum.TEMPERATURE);
-            decisionRepository.save(new Decision(d));
-        }
-
-        if(temperature > 25 && windowStatus != 1) {
+        if(temperature > 25 && windowStatus != 1 && heatingValue != 0) {
             // Opening window
             putActuator(1, 1);
             DecisionList d = new DecisionList(ActionEnum.WINDOWS_OPEN, SensorEnum.TEMPERATURE);
             decisionRepository.save(new Decision(d));
-        }
-
-        if(ppm >= 800 && windowStatus != 1) {
-            // Opening window
-            putActuator(1, 1);
-            DecisionList d = new DecisionList(ActionEnum.WINDOWS_OPEN, SensorEnum.CARBON_DIOXIDE);
+            // Stop heating
+            putActuator(0, 0);
+            d = new DecisionList(ActionEnum.HEATING_STOP, SensorEnum.TEMPERATURE);
             decisionRepository.save(new Decision(d));
         }
     }
