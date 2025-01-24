@@ -41,3 +41,6 @@ To run the different services using Spring Boot, follow these steps:
     ```sh
     mvn spring-boot:run -pl actuator-service
     ```
+
+
+To start the front end navigate to frontend/ and execute `python3 -m http.server`
