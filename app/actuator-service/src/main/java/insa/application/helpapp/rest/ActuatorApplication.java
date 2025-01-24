@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,11 +28,19 @@ public class ActuatorApplication {
         SpringApplication.run(ActuatorApplication.class, args);
     }
 
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
     @RestController
     public static class ActuatorController {
 
         @Autowired
         private ActuatorRepository actuatorRepository;
+
+        @Autowired
+        private RestTemplate restTemplate;
 
         @GetMapping("/actuators")
         public List<Actuator> getAllActuators() {
@@ -47,7 +56,13 @@ public class ActuatorApplication {
         public Actuator updateActuatorState(@PathVariable Long id, @RequestBody StateRequest stateRequest) {
             Actuator actuator = actuatorRepository.findById(id).orElseThrow(() -> new RuntimeException("Actuator not found"));
             actuator.setSvalue(stateRequest.getState());
-            return actuatorRepository.save(actuator);
+            actuatorRepository.save(actuator);
+
+            // Send PUT request to external API
+            String url = "http://localhost:8085/actuators/" + id;
+            restTemplate.put(url, stateRequest);
+
+            return actuator;
         }
     }
 
