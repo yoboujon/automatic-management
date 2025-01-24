@@ -73,10 +73,17 @@ public class ActuatorApplication {
         public void run(String... args) {
             RestTemplate restTemplate = new RestTemplate();
             String url = "http://localhost:8085/actuators/";
-            Actuator[] actuators = restTemplate.getForObject(url, Actuator[].class);
+            ExternalActuator[] externalActuators = restTemplate.getForObject(url, ExternalActuator[].class);
 
-            if (actuators != null) {
-                for (Actuator actuator : actuators) {
+            if (externalActuators != null) {
+                for (ExternalActuator externalActuator : externalActuators) {
+                    Actuator actuator = new Actuator(
+                        externalActuator.getId(),
+                        externalActuator.getName(),
+                        externalActuator.getType(),
+                        externalActuator.getValue(), // Set svalue to value from external API
+                        externalActuator.getRoom()
+                    );
                     actuatorRepository.save(actuator);
                 }
             }
@@ -168,6 +175,55 @@ class Actuator {
                 ", svalue=" + svalue +
                 ", room=" + room +
                 '}';
+    }
+}
+
+class ExternalActuator {
+    private Long id;
+    private String name;
+    private String type;
+    private Integer value;
+    private Integer room;
+
+    // Getters and setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Integer getValue() {
+        return value;
+    }
+
+    public void setValue(Integer value) {
+        this.value = value;
+    }
+
+    public Integer getRoom() {
+        return room;
+    }
+
+    public void setRoom(Integer room) {
+        this.room = room;
     }
 }
 
