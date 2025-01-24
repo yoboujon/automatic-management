@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+title: Service Architecture Project
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Yohan
+    family-names: Boujon
+    affiliation: INSA Toulouse
+    orcid: 'https://orcid.org/0009-0003-9562-3007'
+  - given-names: Robin
+    family-names: Marin-Muller
+    affiliation: INSA Toulouse
+    orcid: 'https://orcid.org/0009-0004-0747-0520'
+repository-code: 'https://github.com/yoboujon/automatic-management'
+abstract: INSA Toulouse Service Architecture
