@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Column;
 
 @Entity
 public class Actuator {
@@ -11,24 +12,16 @@ public class Actuator {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
     private String type;
-    private int value;
-    private int room;
 
-    // No-argument constructor required by JPA
-    public Actuator() {
-    }
+    @Column(name = "\"value\"")
+    private Integer value;
 
-    // Parameterized constructor for convenience
-    public Actuator(String name, String type, int value, int room) {
-        this.name = name;
-        this.type = type;
-        this.value = value;
-        this.room = room;
-    }
+    private Integer room;
 
-    // Getters and setters
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -53,19 +46,19 @@ public class Actuator {
         this.type = type;
     }
 
-    public int getValue() {
+    public Integer getValue() {
         return value;
     }
 
-    public void setValue(int value) {
+    public void setValue(Integer value) {
         this.value = value;
     }
 
-    public int getRoom() {
+    public Integer getRoom() {
         return room;
     }
 
-    public void setRoom(int room) {
+    public void setRoom(Integer room) {
         this.room = room;
     }
 }
